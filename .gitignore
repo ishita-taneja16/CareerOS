@@ -1,0 +1,30 @@
+# Python
+venv/
+.venv/
+env/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+
+# Environment
+.env
+
+# ChromaDB
+backend/fastapi_app/chroma_db_store/
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

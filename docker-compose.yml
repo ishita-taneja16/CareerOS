@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: aicopilot_db
+    environment:
+      POSTGRES_DB: aicopilot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d aicopilot"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: aicopilot_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  chroma:
+    image: chromadb/chroma:latest
+    container_name: aicopilot_chroma
+    ports:
+      - "8000:8000"
+    volumes:
+      - chromadata:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/v1/heartbeat || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile.django
+    container_name: aicopilot_django
+    command: python manage.py runserver 0.0.0.0:8080
+    volumes:
+      - ./backend/django_app:/app
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=aicopilot
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-secret-key-12345
+      - DEBUG=True
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile.fastapi
+    container_name: aicopilot_fastapi
+    command: uvicorn main:app --host 0.0.0.0 --port 8001 --reload
+    volumes:
+      - ./backend/fastapi_app:/app
+    ports:
+      - "8001:8001"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=aicopilot
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - REDIS_URL=redis://redis:6379/1
+      - CHROMA_HOST=chroma
+      - CHROMA_PORT=8000
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      chroma:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  redisdata:
+  chromadata:

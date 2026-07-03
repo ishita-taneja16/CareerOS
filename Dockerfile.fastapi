@@ -1,0 +1,27 @@
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY ./backend/fastapi_app/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# Download spaCy model
+RUN python -m spacy download en_core_web_sm
+
+# Install Playwright browser and dependencies
+RUN playwright install chromium
+RUN playwright install-deps chromium
+
+COPY ./backend/fastapi_app /app
+
+EXPOSE 8001
