@@ -53,45 +53,52 @@ Pipeline Dispatcher      Memory Agent
 
 # 🛠 Tech Stack
 
-### Frontend
+### 🎨 Frontend
 
-- React.js
-- Vite
-- JavaScript (ES6+)
-- Tailwind CSS
-- Axios
+![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Axios](https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge)
 
-### Backend
+---
 
-- Python
-- FastAPI
-- Django
-- REST APIs
-- Pydantic
+### ⚙ Backend
 
-### AI/LLM
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white)
+![REST API](https://img.shields.io/badge/REST_API-FF6F00?style=for-the-badge)
+![Pydantic](https://img.shields.io/badge/Pydantic-E92063?style=for-the-badge&logo=pydantic&logoColor=white)
 
-- Google Gemini API
-- LangChain
-- LangGraph
-- Agentic AI
-- RAG
-- Prompt Engineering
-- Semantic Search
+---
 
-### Databases
+### 🤖 AI / LLM
 
-- PostgreSQL
-- SQLite
-- ChromaDB
-- FAISS
+![Google Gemini](https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white)
+![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=for-the-badge)
+![LangGraph](https://img.shields.io/badge/LangGraph-4CAF50?style=for-the-badge)
+![Agentic AI](https://img.shields.io/badge/Agentic_AI-6A5ACD?style=for-the-badge)
+![RAG](https://img.shields.io/badge/RAG-8A2BE2?style=for-the-badge)
+![Prompt Engineering](https://img.shields.io/badge/Prompt_Engineering-FF9800?style=for-the-badge)
+![Semantic Search](https://img.shields.io/badge/Semantic_Search-00ACC1?style=for-the-badge)
 
-### DevOps
+---
 
-- Docker
-- Git
-- GitHub Actions
+### 🗄 Databases
 
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)
+![ChromaDB](https://img.shields.io/badge/ChromaDB-FFB000?style=for-the-badge)
+![FAISS](https://img.shields.io/badge/FAISS-00599C?style=for-the-badge)
+
+---
+
+### 🚀 DevOps
+
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)
 ---
 
 # 📂 Project Structure
