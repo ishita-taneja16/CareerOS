@@ -50,13 +50,24 @@ def create_graph():
     
     # Dispatcher inspects pipeline and routes conditionally
     def route_from_dispatcher(state: AgentState) -> str:
-        dest = state.get("routing_destination", "end") if isinstance(state, dict) else getattr(state, "routing_destination", "end")
-        if dest in [
-            "resume_agent", "ats_agent", "memory_agent", "interview_agent",
-            "advisor_agent", "cover_letter_agent", "skill_gap_agent"
-        ]:
-            return dest
-        return END
+    dest = (
+        state.get("routing_destination", "end")
+        if isinstance(state, dict)
+        else getattr(state, "routing_destination", "end")
+    )
+
+    if dest in [
+        "resume_agent",
+        "ats_agent",
+        "memory_agent",
+        "interview_agent",
+        "advisor_agent",
+        "cover_letter_agent",
+        "skill_gap_agent",
+    ]:
+        return dest
+
+    return "end"
 
     workflow.add_conditional_edges(
         "pipeline_dispatcher",
