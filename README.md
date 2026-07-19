@@ -9,8 +9,6 @@ CareerOS is a production-ready Full Stack Agentic AI platform that helps users o
 - 🤖 Multi-Agent AI Architecture (LangGraph)
 - 📄 AI Resume Parsing (PDF/DOCX)
 - 📊 ATS Resume Analysis
-- 🎯 Personalized Career Advisor
-- 💼 AI Cover Letter Generator
 - 🎤 AI Interview Preparation
 - 📈 Skill Gap Analysis
 - 🔍 RAG-based Semantic Search
