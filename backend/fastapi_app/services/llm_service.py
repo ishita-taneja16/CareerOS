@@ -19,7 +19,7 @@ class LLMProvider:
 
 class GeminiProvider(LLMProvider):
     def get_model_and_key(self) -> tuple[str, Optional[str]]:
-        model = settings.LLM_MODEL or "gemini/gemini-1.5-flash"
+        model = settings.LLM_MODEL or "gemini/gemini-2.5-flash"
         return model, settings.GEMINI_API_KEY
 
 class OllamaProvider(LLMProvider):

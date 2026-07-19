@@ -30,7 +30,7 @@ Current Resume JSON:
 ---
 """
 
-    model = "gemini/gemini-1.5-flash" if settings.GEMINI_API_KEY else "ollama/llama3"
+    model = "gemini/gemini-2.5-flash" if settings.GEMINI_API_KEY else "ollama/llama3"
     api_key = settings.GEMINI_API_KEY if settings.GEMINI_API_KEY else None
 
     try:
@@ -126,7 +126,7 @@ Candidate Resume:
 {json.dumps(resume_json, indent=2)}
 """
 
-    model = "gemini/gemini-1.5-flash" if settings.GEMINI_API_KEY else "ollama/llama3"
+    model = "gemini/gemini-2.5-flash" if settings.GEMINI_API_KEY else "ollama/llama3"
     api_key = settings.GEMINI_API_KEY if settings.GEMINI_API_KEY else None
 
     try:
@@ -182,7 +182,7 @@ Otherwise:
 3. If they ask to end the interview, output a structured final rating feedback (overall rating 1-5, strengths, areas of improvement).
 """
 
-    model = "gemini/gemini-1.5-flash" if settings.GEMINI_API_KEY else "ollama/llama3"
+    model = "gemini/gemini-2.5-flash" if settings.GEMINI_API_KEY else "ollama/llama3"
     api_key = settings.GEMINI_API_KEY if settings.GEMINI_API_KEY else None
 
     try:
@@ -232,7 +232,7 @@ Job Description:
 {jd}
 """
 
-    model = "gemini/gemini-1.5-flash" if settings.GEMINI_API_KEY else "ollama/llama3"
+    model = "gemini/gemini-2.5-flash" if settings.GEMINI_API_KEY else "ollama/llama3"
     api_key = settings.GEMINI_API_KEY if settings.GEMINI_API_KEY else None
 
     try:
@@ -277,7 +277,7 @@ User preferences recalled from long term memory:
 User request: "{latest_user_message}"
 """
 
-    model = "gemini/gemini-1.5-flash" if settings.GEMINI_API_KEY else "ollama/llama3"
+    model = "gemini/gemini-2.5-flash" if settings.GEMINI_API_KEY else "ollama/llama3"
     api_key = settings.GEMINI_API_KEY if settings.GEMINI_API_KEY else None
 
     try:

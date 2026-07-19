@@ -28,3 +28,12 @@ logs/
 # OS
 .DS_Store
 Thumbs.db
+
+backend/django_app/db.sqlite3
+
+# Resume data (don't upload personal/test files)
+backend/fastapi_app/data/uploads/
+backend/fastapi_app/data/parsed/
+
+# Keep library.json if your app needs it
+!backend/fastapi_app/data/library.json

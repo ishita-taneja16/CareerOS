@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 import { MessageSquare, Play, Send, CheckCircle, HelpCircle, Loader2 } from 'lucide-react';
 
-export default function InterviewPrep({ resume }) {
+export default function InterviewPrep({ 
+  resume, 
+  activeResumeId, 
+  libraryResumes = [],
+  resumeLoading,
+  resumeError,
+  onRetryLoadResume
+}) {
   const [jobDescription, setJobDescription] = useState('Senior React Developer building agentic software dashboards.');
   const [inProgress, setInProgress] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
@@ -12,6 +19,9 @@ export default function InterviewPrep({ resume }) {
   const [loading, setLoading] = useState(false);
   const [streaming, setStreaming] = useState(false);
   const [message, setMessage] = useState('');
+
+  const activeObj = libraryResumes.find(r => r.id === activeResumeId);
+  const hasParsedResume = activeResumeId && activeObj?.parsed && resume && !resumeLoading;
 
   useEffect(() => {
     loadSessions();
@@ -27,8 +37,24 @@ export default function InterviewPrep({ resume }) {
   }
 
   const startInterview = () => {
+    if (!activeResumeId) {
+      setMessage('Please select a resume in the left sidebar first to conduct mock interviews.');
+      return;
+    }
+    if (activeObj && !activeObj.parsed) {
+      setMessage("The active resume has not been parsed. Please click 'Parse Resume' in the Resume Assistant tab first.");
+      return;
+    }
+    if (resumeLoading) {
+      setMessage('Loading parsed resume data, please wait...');
+      return;
+    }
+    if (resumeError) {
+      setMessage('Unable to load parsed resume. Please resolve the load error or click Retry first.');
+      return;
+    }
     if (!resume) {
-      setMessage('Please upload a resume in the Resume Editor tab first to conduct mock interviews.');
+      setMessage('Please select or parse a resume first.');
       return;
     }
     setChatHistory([]);
@@ -142,6 +168,46 @@ export default function InterviewPrep({ resume }) {
 
         {!inProgress ? (
           <div className="space-y-6">
+            {/* Loading state for global resume data */}
+            {activeResumeId && activeObj?.parsed && resumeLoading && (
+              <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs rounded-xl flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
+                <span>Loading parsed resume data...</span>
+              </div>
+            )}
+
+            {/* Error state for global resume data */}
+            {activeResumeId && activeObj?.parsed && resumeError && (
+              <div className="p-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs rounded-xl flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <HelpCircle className="w-5 h-5 shrink-0 text-rose-400" />
+                  <span>{resumeError}</span>
+                </div>
+                <button 
+                  onClick={onRetryLoadResume}
+                  className="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded text-[10px] font-bold transition shrink-0"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
+            {/* Warning banner when no resume is active or unparsed */}
+            {(!activeResumeId || (activeObj && !activeObj.parsed)) && (
+              <div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs rounded-xl flex items-start gap-2.5">
+                <HelpCircle className="w-5 h-5 shrink-0 text-amber-400 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-amber-300">Resume Upload & Parsing Required</p>
+                  <p className="mt-1 text-gray-400 leading-relaxed">
+                    {!activeResumeId 
+                      ? "Please select a resume in the left sidebar first to enable simulated mock interviews."
+                      : "The active resume has not been parsed yet. Please parse the resume in the Resume Assistant tab first."
+                    }
+                  </p>
+                </div>
+              </div>
+            )}
+
             <div>
               <h2 className="text-lg font-semibold text-gray-200">Setup Simulated Mock Interview</h2>
               <p className="text-xs text-gray-500 mt-1">Practice behavior, system design, and algorithms against an interactive recruiter bot.</p>

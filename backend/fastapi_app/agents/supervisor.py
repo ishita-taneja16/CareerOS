@@ -41,7 +41,7 @@ Conversation History:
 Analyze the user's last message carefully. Output ONLY valid JSON matching the schema.
 """
 
-    model = "gemini/gemini-1.5-flash" if settings.GEMINI_API_KEY else "ollama/llama3"
+    model = "gemini/gemini-2.5-flash" if settings.GEMINI_API_KEY else "ollama/llama3"
     api_key = settings.GEMINI_API_KEY if settings.GEMINI_API_KEY else None
 
     try:

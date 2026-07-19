@@ -25,8 +25,13 @@ def agent_logger(agent_name: str) -> Callable:
             start_time = time.time()
             
             # Reset retry counter for this execution context
+            # Reset retry counter for this execution context
             token = llm_retry_count_var.set(0)
-            model_used = "gemini/gemini-1.5-flash" if settings.GEMINI_API_KEY else "ollama/llama3"
+            model_used = (
+                "gemini/gemini-2.5-flash"
+                if settings.GEMINI_API_KEY
+                else "ollama/llama3"
+            )
             
             try:
                 # Invoke underlying agent node

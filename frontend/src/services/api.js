@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const DJANGO_URL = 'http://localhost:8080/api/v1';
-const FASTAPI_URL = 'http://localhost:8001/api/v1';
+const DJANGO_URL = 'http://localhost:8001/api/v1';
+const FASTAPI_URL = 'http://localhost:8000/api/v1';
 
 // Axios Instance for Django (Authenticated Requests)
 export const djangoApi = axios.create({
@@ -69,6 +69,36 @@ export const apiService = {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
+
+  // --- Resume Library CRUD (FastAPI) ---
+  getLibraryResumes: () => 
+    fastapiApi.get('/parse/library'),
+
+  uploadResumeToLibrary: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return fastapiApi.post('/parse/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+
+  parseExistingLibraryResume: (resumeId) => 
+    fastapiApi.post(`/parse/library/${resumeId}/parse`),
+
+  getLibraryResumeData: (resumeId) => 
+    fastapiApi.get(`/parse/library/${resumeId}/data`),
+
+  saveLibraryResumeData: (resumeId, data) => 
+    fastapiApi.post(`/parse/library/${resumeId}/save`, data),
+
+  renameLibraryResume: (resumeId, newName) => 
+    fastapiApi.post(`/parse/library/${resumeId}/rename`, { new_name: newName }),
+
+  deleteLibraryResume: (resumeId) => 
+    fastapiApi.delete(`/parse/library/${resumeId}`),
+
+  getLibraryResumeDownloadUrl: (resumeId) => 
+    `${FASTAPI_URL}/parse/library/${resumeId}/download`,
 
   evaluateATS: (resume, jobDescription) => 
     fastapiApi.post('/ats/evaluate', { resume, job_description: jobDescription }),
