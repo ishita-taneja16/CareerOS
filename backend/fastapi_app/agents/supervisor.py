@@ -1,8 +1,9 @@
+import json
 from pydantic import BaseModel, Field
-from litellm import completion
+
 from config import settings
 from agents.state import AgentState
-import json
+from services.llm_service import LLMService
 
 
 class SupervisorDecision(BaseModel):
@@ -28,7 +29,13 @@ def run_supervisor(state: AgentState) -> dict:
 
     history = []
 
-    for msg in state.messages[-5:]:
+    messages = (
+        state.get("messages", [])
+        if isinstance(state, dict)
+        else getattr(state, "messages", [])
+    )
+
+    for msg in messages[-5:]:
         role = msg.get("role", "user")
         content = msg.get("content", "")
         history.append(f"{role.capitalize()}: {content}")
@@ -65,35 +72,17 @@ Example:
 }}
 """
 
-    model = (
-        "gemini/gemini-2.5-flash"
-        if settings.GEMINI_API_KEY
-        else "ollama/llama3"
-    )
-
-    api_key = settings.GEMINI_API_KEY or None
-
     try:
-        response = completion(
-            model=model,
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-            api_key=api_key,
+        response = LLMService.call(
+            prompt=prompt,
             response_format=SupervisorDecision,
         )
 
-        decision = json.loads(response.choices[0].message.content)
+        decision = json.loads(response)
 
         next_agent = decision.get("next_agent", "advisor_agent")
 
-        if next_agent == "end":
-            pipeline = []
-        else:
-            pipeline = [next_agent]
+        pipeline = [] if next_agent == "end" else [next_agent]
 
         return {
             "routing_destination": next_agent,
