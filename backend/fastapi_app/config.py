@@ -23,9 +23,18 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = Field(default="")
     
     # LLM Settings
-    LLM_PROVIDER: str = "gemini"  # Options: gemini, ollama, huggingface
+    LLM_PROVIDER: str = "gemini"  # Options: gemini, ollama, huggingface, qwen
     LLM_MODEL: str = ""           # Optional override
-    
+
+    # Qwen & ML Configuration
+    QWEN_MODEL_PATH: str = "Qwen/Qwen2.5-7B-Instruct"
+    QWEN_INFERENCE_URL: str = ""  # Optional vLLM/Ollama/OpenAI-compatible local endpoint
+
+    # Responsible AI Configuration
+    ENABLE_RESPONSIBLE_AI_GUARDRAILS: bool = True
+    BIAS_THRESHOLD: float = 0.15
+    MAX_HALLUCINATION_SCORE: float = 0.20
+
     class Config:
         env_file = ".env"
         case_sensitive = True
