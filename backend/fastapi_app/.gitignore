@@ -1,0 +1,5 @@
+
+# Local Qwen fine-tuned adapter
+backend/fastapi_app/models/qwen_career_lora/
+
+models/qwen_career_lora/
