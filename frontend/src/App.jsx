@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import ResumeEditor from './pages/ResumeEditor';
 import JobBoard from './pages/JobBoard';
 import InterviewPrep from './pages/InterviewPrep';
+import LandingPage from './pages/LandingPage';
 import { apiService } from './services/api';
 import { Briefcase, FileText, LayoutDashboard, LogOut, ShieldAlert, Sparkles, User, FileJson } from 'lucide-react';
 
@@ -204,6 +205,12 @@ function AppContent() {
     }
   };
 
+  // ── landing / auth routing for unauthenticated users ──
+  const [authScreen, setAuthScreen] = useState(null); // null = landing, 'login'|'register' = auth form
+
+  const handleEnterApp = (mode) => setAuthScreen(mode);
+  const handleBackToLanding = () => setAuthScreen(null);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0b0f19] flex items-center justify-center">
@@ -216,7 +223,15 @@ function AppContent() {
   }
 
   if (!user) {
-    return <Auth />;
+    if (authScreen === null) {
+      return <LandingPage onEnterApp={handleEnterApp} />;
+    }
+    return (
+      <Auth
+        initialMode={authScreen}
+        onBackToLanding={handleBackToLanding}
+      />
+    );
   }
 
   const renderContent = () => {

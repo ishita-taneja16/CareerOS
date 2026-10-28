@@ -1,16 +1,22 @@
 # 🚀 CareerOS – Agentic AI Career Copilot
 
-CareerOS is a production-ready Full Stack Agentic AI platform that helps users optimize their careers using multiple specialized AI agents. The platform provides AI-powered resume analysis, ATS evaluation, career guidance, interview preparation, skill gap analysis, cover letter generation, intelligent job matching through a Supervisor-driven multi-agent workflow, **optional local Qwen LLM fine-tuning and inference**, and a **provider-agnostic Responsible AI evaluation framework**.
+CareerOS is a production-ready Full Stack Agentic AI platform that helps users optimize their careers using multiple specialized AI agents. The platform provides AI-powered resume analysis, ATS evaluation, career guidance, interview preparation, skill gap analysis, cover letter generation, intelligent job matching through a Supervisor-driven multi-agent workflow, **Microsoft Azure AI & Google Gemini provider integration**, **optional local Qwen LLM fine-tuning and inference**, and a **provider-agnostic Responsible AI evaluation framework**.
 
 ---
 
 ## ✨ Features
 
-- 🤖 Multi-Agent AI Architecture (LangGraph)
-- 📄 AI Resume Parsing (PDF/DOCX)
+- 🤖 Multi-Agent AI Architecture (LangGraph Supervisor-Worker StateGraph)
+- ☁️ **Microsoft Azure AI Integration** (Azure OpenAI Service & Azure AI Foundry Model Endpoints)
+- ⚡ **Optional Azure Functions Worker** (Asynchronous Serverless Document Processing)
+- 📊 Agent Monitoring & Tracing (Langfuse Spans, Token Tracking, Latency, Errors)
+- 🔍 Hybrid Semantic Retrieval (ChromaDB Dense + BM25Okapi Sparse + Reciprocal Rank Fusion)
+- 📈 Reproducible RAG Evaluation Baseline (RAGAS Context Recall & Faithfulness)
+- 🌐 Provider-Agnostic LLM Engine (Google Gemini Free Tier, Azure OpenAI, Azure Foundry, OpenAI, and Local/Remote Qwen2.5)
+- 👥 Multi-Agent Comparison Prototype (CrewAI Isolated Demonstration)
+- 📄 AI Resume Parsing (PDF/DOCX with PyMuPDF, docling, and spacy)
 - 📊 ATS Resume Analysis & Keyword Optimization
 - 🎤 AI Interview Preparation & Skill Gap Analysis
-- 🔍 RAG-based Semantic Search & Memory Retention
 - 🧠 Optional Local Qwen LLM Inference (`Qwen/Qwen2.5-1.5B-Instruct`)
 - ⚙️ LoRA / QLoRA Custom Fine-Tuning Pipeline
 - 🛡️ Provider-Agnostic Responsible AI Guardrails & Evaluation Framework
@@ -20,7 +26,17 @@ CareerOS is a production-ready Full Stack Agentic AI platform that helps users o
 
 ---
 
+## 📚 Technical Documentation
+
+- 🏛️ [**System Architecture Document**](docs/ARCHITECTURE.md): Multi-agent state machine, hybrid retrieval, provider routing, telemetry, and resilience.
+- 📘 [**Agent Development Guide**](docs/AGENT_DEVELOPMENT_GUIDE.md): Prompts, state schemas, retries, Langfuse tracing, safety, and testing best practices.
+- 🔬 [**LangGraph vs. CrewAI Comparison**](backend/fastapi_app/agents/crewai_demo/COMPARISON.md): Detailed architectural trade-offs in orchestration, state management, tool usage, and testing.
+- ⚡ [**Azure Functions Guide**](azure_functions/README.md): Asynchronous serverless document processing, local Azurite emulator testing, and Consumption plan free allowances.
+
+---
+
 # 🏗 Architecture
+
 
 ```
                 User
@@ -29,8 +45,8 @@ CareerOS is a production-ready Full Stack Agentic AI platform that helps users o
           React Frontend (Vite)
                   │
                   ▼
-            FastAPI Backend
-                  │
+            FastAPI Backend  ◀══════ (Optional Async) ══════ Azure Functions
+                  │                                         (1M free exec/mo)
                   ▼
         LangGraph Supervisor
                   │
@@ -46,12 +62,14 @@ Pipeline Dispatcher      Memory Agent
       └──────── Cover Letter Agent
                   │
                   ▼
-             LLMService
+             LLMService (Centralized Multi-Provider Engine)
                   │
-       ┌──────────┴──────────┐
-       │                     │
-  Gemini (Default)     Local Qwen (Optional)
-       └──────────┬──────────┘
+       ┌──────────┼──────────────────────┬──────────────────────┐
+       │          │                      │                      │
+  Gemini API   Azure OpenAI         Azure AI Foundry       Local Qwen
+ (Free Default) (Optional Cloud)   (Serverless Model API)  (Offline OSS)
+       │          │                      │                      │
+       └──────────┴──────────────────────┴──────────────────────┘
                   │
                   ▼
      Responsible AI Evaluation
@@ -65,11 +83,80 @@ Pipeline Dispatcher      Memory Agent
                Response
 ```
 
-> **Note**: Google Gemini remains the default production LLM provider. Qwen is integrated as an optional, locally hosted LLM provider.
+> **Free-First Note**: Google Gemini remains the default zero-cost cloud LLM provider. Azure OpenAI, Microsoft Azure AI Foundry, and local Qwen are configuration-ready optional providers. No paid cloud resources are required to run or test CareerOS.
 
 ---
 
-## 🤖 Custom Qwen Fine-Tuning
+## ☁️ Microsoft Azure AI Integration (Free-First Architecture)
+
+CareerOS includes enterprise-grade **Microsoft Azure AI** support seamlessly woven into the centralized `LLMService` engine without breaking existing Google Gemini workflows or requiring paid cloud resources.
+
+### 💡 Free-First Philosophy
+- **Zero-Cost Default**: Google Gemini remains the default production LLM provider, utilizing the free rate quotas available in Google AI Studio.
+- **No Inadvertent Charges**: Azure OpenAI and Azure Foundry providers read configuration exclusively from environment variables and fail gracefully with helpful diagnostic messages if credentials or endpoints are omitted.
+- **No Cloud Lock-in**: All LangGraph supervisor and specialist agents call `LLMService.call(...)` agnostic of whether Gemini, Azure OpenAI, Azure Foundry, or local Qwen is active.
+
+### 💰 Pricing & Free-Tier Eligibility Guide
+Before configuring or deploying cloud resources, verify your subscription terms and current pricing:
+
+| Service / Provider | Free Allowance & Eligibility | Pricing Structure | Verification Link |
+| :--- | :--- | :--- | :--- |
+| **Google Gemini (Default)** | Free Tier available in Google AI Studio (rate-limited requests per minute) | Free tier available / Pay-as-you-go | [Google AI Studio Pricing](https://ai.google.dev/pricing) |
+| **Azure Free Account** | **$200 credit** for the first 30 days + 12 months of select free services | Credit-based trial | [Azure Free Account Eligibility](https://azure.microsoft.com/free/) |
+| **Azure OpenAI Service** | No perpetual free inference tier; consumes Azure free credits during trial | Pay-as-you-go per 1K tokens (e.g., GPT-4o-mini ~$0.15/1M input tokens) | [Azure OpenAI Pricing Calculator](https://azure.microsoft.com/pricing/details/cognitive-services/openai-service/) |
+| **Azure AI Foundry (MaaS)** | Varies by foundation model; serverless pay-per-token or hourly compute | Pay-as-you-go per token or hourly VM compute | [Azure AI Foundry Catalog](https://ai.azure.com/explore/models) |
+| **Azure Functions** | **1,000,000 executions/month free** + **400,000 GB-seconds/month free** on Consumption Plan | $0 within free grant | [Azure Functions Pricing](https://azure.microsoft.com/pricing/details/functions/) |
+| **Local Development** | **100% Free** via Azurite Emulator & Azure Functions Core Tools | Completely local, offline, no Azure account required | [Azurite Docs](https://learn.microsoft.com/azure/storage/common/storage-use-azurite) |
+
+---
+
+### 🔧 LLM Provider Configuration & Setup
+
+#### 1. Google Gemini (Default - Free First)
+```env
+LLM_PROVIDER=gemini
+GEMINI_API_KEY="your-gemini-api-key"
+LLM_MODEL="gemini/gemini-2.5-flash"
+```
+
+#### 2. Microsoft Azure OpenAI Service (Optional)
+To use Azure OpenAI, obtain a deployment in the Azure Portal or Azure OpenAI Studio:
+```env
+LLM_PROVIDER=azure
+AZURE_OPENAI_ENDPOINT="https://your-resource-name.openai.azure.com/"
+AZURE_OPENAI_API_KEY="your-azure-api-key"
+AZURE_OPENAI_DEPLOYMENT="gpt-4o-mini"
+AZURE_OPENAI_API_VERSION="2024-02-15-preview"
+```
+*Note: Both `LLM_PROVIDER=azure` and `LLM_PROVIDER=azure_openai` are supported.*
+
+#### 3. Microsoft Azure AI Foundry (Optional Serverless Model API)
+To route requests to Serverless Model-as-a-Service (MaaS) endpoints hosted in Microsoft Azure AI Foundry (e.g. Phi-4, Mistral, Llama-3.3):
+```env
+LLM_PROVIDER=foundry
+AZURE_FOUNDRY_ENDPOINT="https://your-model-endpoint.models.ai.azure.com"
+AZURE_FOUNDRY_API_KEY="your-foundry-api-key"
+AZURE_FOUNDRY_MODEL="Phi-4"
+```
+*Note: Both `LLM_PROVIDER=foundry` and `LLM_PROVIDER=azure_foundry` are supported.*
+
+---
+
+### ⚡ Optional Azure Functions Workflow (Asynchronous Processing)
+
+CareerOS includes an optional serverless worker in `azure_functions/` using the modern Azure Functions Python v2 model:
+- **HTTP Trigger (`POST /api/process_resume`)**: Offloads document extraction (PDF/DOCX) and structuring without blocking FastAPI threads.
+- **Queue Trigger (`resume-processing-queue`)**: Provides decoupled background worker processing for batch resume parsing.
+- **100% Local Testing**: Run locally using Azure Functions Core Tools and the Azurite storage emulator without deploying cloud resources.
+- See [azure_functions/README.md](azure_functions/README.md) for full setup instructions.
+
+---
+
+### 🏠 Local Development vs. Cloud Deployment Distinction
+- **Local Application**: CareerOS runs 100% locally on your machine with FastAPI on port 8001, Django on port 8080, and Vite on port 5173.
+- **Cloud Readiness**: Azure integrations are **configuration-ready**. CareerOS is **not** deployed to Azure cloud infrastructure by default. To deploy to Azure, deliberate provisioning (e.g. Azure App Service, Azure Container Apps, or Azure Functions) with proper billing setup is required.
+
+---
 
 CareerOS includes an implementation for career-domain fine-tuning of:
 
@@ -116,14 +203,68 @@ CareerOS provides a local LoRA/QLoRA fine-tuning pipeline for adapting Qwen mode
 In your `backend/fastapi_app/.env` file:
 
 ```env
-# Default Gemini API provider
+# Google Gemini API provider (Default)
 LLM_PROVIDER=gemini
+GEMINI_API_KEY="your-gemini-key"
 
-# Optional local Qwen provider
+# OpenAI API provider
+LLM_PROVIDER=openai
+OPENAI_API_KEY="your-openai-key"
+OPENAI_MODEL=gpt-4o-mini
+
+# Optional local/remote Qwen provider
 LLM_PROVIDER=qwen
+QWEN_MODEL_PATH="Qwen/Qwen2.5-7B-Instruct"
 ```
 
 ---
+
+## 📊 Agent Monitoring & Tracing (Langfuse)
+
+CareerOS integrates **Langfuse** for enterprise-grade LLM and agentic observability:
+- **Node Spans**: Every agent execution (`supervisor`, `resume_agent`, `ats_agent`, `advisor_agent`, etc.) is traced with duration, user ID, state metadata, and routing decisions.
+- **Generation Tracking**: LLM prompts, completions, latencies, and exact token usage (`prompt_tokens`, `completion_tokens`, `total_tokens`) are recorded without fabricating missing values.
+- **Cost & Latency Audits**: Captures actual provider-exposed cost figures when available.
+- **Graceful Degradation**: Tracing is optional. If `LANGFUSE_ENABLED=false` or credentials are absent, the system runs with `NoOpSpan` without network overhead or runtime exceptions.
+
+### Configuration
+```env
+LANGFUSE_ENABLED=true
+LANGFUSE_PUBLIC_KEY="pk-lf-..."
+LANGFUSE_SECRET_KEY="sk-lf-..."
+LANGFUSE_HOST="https://cloud.langfuse.com"
+```
+
+---
+
+## 🔍 Hybrid Semantic Retrieval & RAGAS Evaluation
+
+CareerOS implements an optimized two-stage RAG retrieval pipeline:
+1. **Dense Semantic Retrieval**: ChromaDB vector collection powered by `all-MiniLM-L6-v2` embeddings for conceptual matching.
+2. **Sparse Lexical Retrieval**: Custom `BM25OkapiRetriever` ($k_1=1.5, b=0.75$) matching exact technical acronyms, tools, and certifications (e.g. `FastAPI`, `Alembic`, `PostgreSQL`, `QLoRA`).
+3. **Reciprocal Rank Fusion (RRF)**: Merges dense and sparse rankings ($k=60$) to prioritize candidate chunks with both semantic relevance and technical precision.
+4. **Backward Compatibility**: `query_resume_chunks(..., use_hybrid=True)` enables hybrid search while preserving existing vector queries.
+
+### RAGAS Evaluation Baseline
+Reproducible evaluation baseline comparing standard Dense retrieval vs. Optimized Hybrid + RRF Reranking on real-world career domain queries:
+- **Context Recall**: Measures proportion of ground-truth technical competencies retrieved.
+- **Faithfulness**: Measures whether answer claims are strictly grounded in retrieved passages (via `GroundednessEvaluator`).
+- **Mean Reciprocal Rank (MRR)**: Measures ranking quality of the top relevant chunk.
+- Results saved to: `backend/fastapi_app/ml/evaluation/ragas_evaluation_results.json`.
+
+---
+
+## 👥 CrewAI Demonstration Prototype
+
+To benchmark multi-agent frameworks, CareerOS includes an isolated **CrewAI comparison demonstration**:
+- Location: `backend/fastapi_app/agents/crewai_demo/`
+- Architecture: 2-agent sequential crew (`Senior Technical Resume Reviewer` and `ATS Specialist`).
+- Custom Tools: `ats_keyword_match_tool` and `resume_bullet_auditor_tool`.
+- Complete isolation: Existing LangGraph supervisor workflow remains the primary production orchestrator.
+- Detailed Trade-Off Analysis: See [COMPARISON.md](backend/fastapi_app/agents/crewai_demo/COMPARISON.md).
+
+---
+
 
 ## 🛡 Responsible AI
 
@@ -448,10 +589,13 @@ npm run dev
 
 # 🧪 Running Tests & ML Evaluation
 
-### 1. Run Backend Unit & Responsible AI Tests
+### 1. Run Backend Unit, Azure AI & Responsible AI Tests
 
 ```bash
 cd backend/fastapi_app
+
+# Run Azure OpenAI and Foundry provider test suite
+pytest tests/test_azure_provider.py
 
 # Run Responsible AI & Qwen inference test suite
 pytest tests/test_responsible_ai.py tests/test_qwen_inference.py

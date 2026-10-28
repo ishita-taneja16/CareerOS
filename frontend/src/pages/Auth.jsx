@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ShieldCheck, Mail, Lock, User, RefreshCw } from 'lucide-react';
 
-export default function Auth() {
+export default function Auth({ initialMode = 'login', onBackToLanding }) {
   const { login, register } = useAuth();
-  const [isRegister, setIsRegister] = useState(false);
+  const [isRegister, setIsRegister] = useState(initialMode === 'register');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -34,11 +34,20 @@ export default function Auth() {
       <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] rounded-full bg-violet-500/10 blur-[150px]" />
 
       <div className="w-full max-w-md bg-[#151d30] border border-[#232e48]/80 rounded-2xl shadow-2xl p-8 backdrop-blur-xl relative z-10">
+        {/* Back link */}
+        {onBackToLanding && (
+          <button
+            onClick={onBackToLanding}
+            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-indigo-400 transition mb-6 group"
+          >
+            <span className="group-hover:-translate-x-0.5 transition-transform">←</span> Back to home
+          </button>
+        )}
         <div className="flex flex-col items-center mb-8">
           <div className="p-3 bg-indigo-500/10 rounded-xl mb-4 border border-indigo-500/20">
             <ShieldCheck className="w-8 h-8 text-indigo-400" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-100">AI Career Copilot</h1>
+          <h1 className="text-2xl font-bold text-gray-100">CareerOS</h1>
           <p className="text-sm text-gray-400 mt-1">
             {isRegister ? 'Create your career account' : 'Sign in to access your dashboard'}
           </p>

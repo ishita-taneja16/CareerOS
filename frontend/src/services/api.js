@@ -1,7 +1,9 @@
 import axios from 'axios';
 
-const DJANGO_URL = 'http://localhost:8001/api/v1';
-const FASTAPI_URL = 'http://localhost:8000/api/v1';
+// Django (auth, resumes, jobs DB) → port 8000
+// FastAPI (AI: parse, ATS, chat, exports)  → port 8001
+const DJANGO_URL = 'http://localhost:8000/api/v1';
+const FASTAPI_URL = 'http://localhost:8001/api/v1';
 
 // Axios Instance for Django (Authenticated Requests)
 export const djangoApi = axios.create({

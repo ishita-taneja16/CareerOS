@@ -8,6 +8,8 @@ __pycache__/
 
 # Environment
 .env
+local.settings.json
+.azurefunctions/
 
 # ChromaDB
 backend/fastapi_app/chroma_db_store/
