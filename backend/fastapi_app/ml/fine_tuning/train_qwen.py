@@ -166,13 +166,25 @@ def train_qwen_lora(
         dataset_path = os.path.join(os.path.dirname(script_dir), "datasets", "train", "career_instructions_train.jsonl")
         if not os.path.exists(dataset_path):
             dataset_path = os.path.join(os.path.dirname(script_dir), "datasets", "train", "career_instructions.jsonl")
-
     if val_dataset_path is None:
-        val_dataset_path = os.path.join(os.path.dirname(script_dir), "datasets", "train", "career_instructions_val.jsonl")
+        val_dataset_path = os.path.join(
+            os.path.dirname(script_dir),
+            "datasets",
+            "train",
+            "career_instructions_val.jsonl"
+        )
 
     hw_info = get_system_hardware_details()
     dataset_hash = compute_file_hash(dataset_path)
 
+    # Enforce GPU requirement before CI/dry-run handling
+    if not hw_info["cuda_available"] and not cpu_smoke_test and not dry_run:
+        raise RuntimeError(
+            "Genuine fine-tuning requires an NVIDIA GPU with CUDA. "
+            "Local environment has integrated graphics / CPU only with 8 GB RAM. "
+            "Please run notebooks/qwen_finetuning_colab.ipynb on Google Colab GPU to execute training. "
+            "To validate configuration locally without training, use --dry-run."
+        )
     # ── DRY-RUN / CI VALIDATION MODE ──────────────────────────────────────────
     if dry_run or os.environ.get("CI"):
         logger.info("Executing fine-tuning DRY-RUN validation mode.")
