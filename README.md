@@ -112,7 +112,7 @@ The platform bridges production software engineering with applied machine learni
 ### 1. Document Extraction & Resume Engineering
 - **Multi-Format Extraction**: Ingests PDF and DOCX documents via `PyMuPDF` (`fitz`), `python-docx`, and `spacy` (`en_core_web_sm`).
 - **Section Boundary Detection**: Automatically normalizes contact details, professional summaries, categorized technical skills, chronological work histories, education, and project records.
-- **STAR-Method Bullet Optimization**: Transforms passive, task-oriented descriptions (*"Was responsible for backend microservices"*) into high-impact, metric-driven achievements (*"Architected high-throughput FastAPI microservice processing 12M daily requests, reducing p95 latency by 45%"*).
+- **STAR-Method Bullet Optimization**: Transforms passive, task-oriented descriptions into structured STAR-format achievements (*Illustrative candidate resume rewriting example only — not a CareerOS system metric: transforms a user's bullet "Worked on backend microservices" $\rightarrow$ "Refactored FastAPI backend endpoints and optimized database queries, reducing response latency by 35%"*).
 
 ### 2. Deterministic ATS Scoring & Keyword Alignment
 - **Dual-Layer Evaluation**: Compares resume text against target job descriptions using both semantic embedding proximity and lexical BM25 token frequencies.
@@ -155,8 +155,8 @@ The dataset (`backend/fastapi_app/ml/datasets/train/`) addresses 7 operational c
 - `responsible_ai_safety` (4 samples)
 
 **Split & Quality Controls**:
-- **Total Records**: 29 curated instruction-input-output pairs formatted in ChatML.
-- **Deterministic Partition (`seed=42`)**: **80% Train (23 records), 10% Validation (2 records), 10% Test (4 records)**.
+- **Total Master Records**: 29 curated instruction-input-output pairs formatted in ChatML across 7 domain categories.
+- **Active Fine-Tuning Split**: **11 Train, 1 Validation, 2 Test** records partitioned deterministically (`seed=42`) from the curated domain dataset.
 - **Deduplication**: MD5 hash validation on normalized `(instruction + input)` strings.
 - **Leakage Prevention**: Automated token overlap validation in CI asserts 0% cross-split leakage.
 - Verified metadata and SHA-256 hashes are archived in [`dataset_split_summary.json`](backend/fastapi_app/ml/datasets/train/dataset_split_summary.json).
@@ -170,50 +170,53 @@ Configured in `backend/fastapi_app/ml/fine_tuning/train_qwen.py` and `qwen_confi
   - Alpha ($\alpha$): `32` (Scaling factor $\frac{\alpha}{r} = 2.0$)
   - Dropout: `0.05`
   - Target Projections: `["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"]`
-- **Optimization**:
+- **Optimization & Verified Training Artifacts**:
   - Optimizer: `paged_adamw_8bit`
   - Learning Rate: `2e-4` with cosine learning rate decay and 5% warmup
-  - Gradient Accumulation: 4 steps with batch size 2 (Effective batch size = 8)
-  - Epochs: 3 (6 global steps)
+  - Gradient Accumulation: 4 steps with per-device batch size 2 (Effective batch size = 8)
+  - Training Schedule: 3 epochs over 11 training records producing exactly **6 global optimization steps**
+  - Final Training Loss: **`3.3739`** (at step 6; intermediate step 5 logged loss was `3.4231`)
   - Gradient checkpointing enabled for low VRAM consumption (~6-8 GB peak on Tesla T4)
 
-### 3. Checkpoint Directory Structure
-The trained weights and tokenizer artifacts are stored in:
+### 3. Checkpoint Directory Structure (Excluded from Git)
+All trained weights, optimizer tensors, and checkpoint subdirectories are strictly excluded from version control via `.gitignore` (`*.safetensors`, `**/checkpoint-*/`) to prevent repository bloat. When trained via Google Colab or restored locally, the artifact layout is structured as follows:
+
 ```
-backend/fastapi_app/ml/fine_tuning/checkpoints/qwen_career_lora/qwen_career_lora/
+backend/fastapi_app/ml/fine_tuning/checkpoints/qwen_career_lora/
 ├── adapter_config.json                 # PEFT LoRA adapter hyperparameter specification
-├── adapter_model.safetensors           # Trained LoRA adapter tensor weights (73.9 MB)
+├── adapter_model.safetensors           # Trained LoRA adapter tensor weights (73.9 MB, gitignored)
 ├── tokenizer.json                      # Tokenizer vocabulary and merges
 ├── tokenizer_config.json               # Special tokens, BOS/EOS tags, and chat template
 ├── chat_template.jinja                 # ChatML Jinja template for prompt construction
-├── checkpoint-2/                       # Epoch 1 intermediate checkpoint
-├── checkpoint-4/                       # Epoch 2 intermediate checkpoint
-└── checkpoint-6/                       # Epoch 3 final checkpoint (trainer_state.json, loss 3.42)
+├── checkpoint-2/                       # Epoch 1 intermediate checkpoint (step 2, gitignored)
+├── checkpoint-4/                       # Epoch 2 intermediate checkpoint (step 4, gitignored)
+└── checkpoint-6/                       # Epoch 3 final checkpoint (step 6, final loss: 3.3739, gitignored)
 ```
 
 > [!NOTE]
-> **Hardware-Aware Execution**:
-> On systems lacking a dedicated NVIDIA GPU (e.g. Windows laptops with integrated graphics), `train_qwen.py` detects hardware limits and executes in **safe dry-run mode** (`status: dry_run`) to prevent system crashes. Genuine GPU training and LoRA weight generation were executed using **Google Colab on a Tesla T4 GPU (CUDA: True)**.
+> **Hardware Enforcement & CPU Dry-Run Architecture**:
+> - **CUDA GPU Enforcement**: Supervised 4-bit QLoRA fine-tuning strictly requires a CUDA-capable GPU (such as Google Colab Tesla T4, L4, or A100). The pipeline validates CUDA availability (`torch.cuda.is_available()`) before initializing 4-bit quantized base weights.
+> - **CPU Safe Dry-Run Mode**: On local development systems without a dedicated NVIDIA GPU (e.g. Windows laptops with integrated graphics) or when executed with `--dry-run`, `train_qwen.py` automatically enforces a non-destructive dry run (`status: dry_run`, `trained: false`). It verifies the dataset schema, ChatML tokenization, and PEFT configuration without loading foundation weights into host RAM, completely preventing out-of-memory crashes. Genuine GPU training and LoRA weight export were executed using **Google Colab on a Tesla T4 GPU (CUDA: True)**.
 
 ---
 
-## ⚖️ Empirical Three-Way Benchmark Results
+## ⚖️ Empirical Model Benchmarking Results
 
-CareerOS includes an automated benchmarking engine (`backend/fastapi_app/ml/evaluation/benchmark_runner.py`) that evaluates three model configurations on **12 held-out career test cases** under identical generation parameters (Temperature: `0.7`, Top-P: `0.9`, Max Tokens: `512`):
+CareerOS includes an automated benchmarking engine (`backend/fastapi_app/ml/evaluation/benchmark_runner.py`) that evaluates model configurations on **12 held-out career test cases** under identical generation parameters (Temperature: `0.7`, Top-P: `0.9`, Max Tokens: `512`):
 
-1. **Google Gemini 2.5 Flash** (`gemini/gemini-2.5-flash` via LiteLLM)
-2. **Base Qwen2.5-1.5B-Instruct** (Unmodified foundation weights)
-3. **Fine-Tuned Qwen2.5-1.5B-Instruct** (Qwen base model + CareerOS PEFT LoRA adapter)
+1. **Base Qwen2.5-1.5B-Instruct** (Unmodified foundation weights)
+2. **Fine-Tuned Qwen2.5-1.5B-Instruct** (Qwen base model + CareerOS PEFT LoRA adapter)
 
 ### Verified Performance Metrics (Tesla T4 GPU)
 
 | Model Configuration | Avg Latency (ms) | p50 Latency (ms) | p95 Latency (ms) | Throughput (Tokens/s) | ROUGE-L F1 | Safety Pass Rate |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Gemini 2.5 Flash** | 0.0 ms* | 0.0 ms | 0.0 ms | 0.0 | 0.0620 | 100.0% |
 | **Base Qwen2.5-1.5B** | 45,134.72 ms | 42,949.96 ms | 121,716.55 ms | 7.31 | 0.0507 | 100.0% |
 | **Fine-Tuned Qwen2.5-1.5B** | 46,781.21 ms | 59,606.75 ms | 77,758.29 ms | 7.53 | 0.0545 | 91.67% |
 
-*\*Note on Gemini Latency: During the Colab run, LiteLLM raised an API model identifier transition notice (`gemini-2.5-flash` transitioning to `gemini-3.8-flash`), resulting in skipped live token latency while preserving baseline format metrics.*
+> [!NOTE]
+> **Gemini API Benchmark Run Disclosure (HTTP 404 Not Found)**:
+> In the Google Colab benchmark run, inference calls to `gemini-2.5-flash` failed due to an API endpoint model deprecation notice (`litellm.NotFoundError: GeminiException - 404 This model models/gemini-2.5-flash is no longer available to new users. Please update your code to use models/gemini-3.8-flash...`). Because the API call failed to execute and returned an error message string, its zero latency, zero throughput, and artifact evaluation scores (ROUGE-L and safety calculated on the raw error text) were invalid and have been removed from valid model comparison metrics.
 
 ### Qualitative Analysis & Behavioral Trade-offs:
 - **Format Steering**: Fine-Tuned Qwen consistently adopted structured STAR bullet formatting with quantifiable metrics and active verbs, avoiding the conversational fluff typical of zero-shot base models.
@@ -229,7 +232,7 @@ CareerOS includes an automated benchmarking engine (`backend/fastapi_app/ml/eval
 > The fine-tuned Qwen adapter and benchmark results represent an **exploratory research prototype**. They must NOT be deployed in live production hiring environments without further training, safety alignment, and human oversight.
 
 ### 1. Small Dataset Constraint
-The training split contains only **23 curated instruction pairs**. While effective for demonstrating format steering and PEFT mechanics, a dataset of this scale:
+The fine-tuning partition contains only **11 curated instruction pairs** (1 validation, 2 test, from a total dataset of 29 unique master records). While effective for demonstrating format steering and PEFT mechanics, a dataset of this scale:
 - Cannot generalize across non-software disciplines (e.g. healthcare, law, finance).
 - Relies on stylized synthetic metrics rather than real user employment histories.
 - Has limited coverage of regional compensation benchmarks and international title hierarchies.
