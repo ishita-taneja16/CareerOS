@@ -1,0 +1,33 @@
+{
+  "dataset_name": "CareerOS Career-Domain Instruction Dataset",
+  "target_model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "seed": 42,
+  "total_unique_records": 29,
+  "split_counts": {
+    "train": 23,
+    "validation": 2,
+    "test": 4
+  },
+  "split_percentages": {
+    "train": "79.3%",
+    "validation": "6.9%",
+    "test": "13.8%"
+  },
+  "leakage_check_passed": true,
+  "categories_covered": {
+    "resume_bullet_optimization": 8,
+    "ats_keyword_matching": 4,
+    "technical_interview": 5,
+    "behavioral_interview": 3,
+    "career_transition_advice": 3,
+    "cover_letter_tailoring": 2,
+    "responsible_ai_safety": 4
+  },
+  "file_hashes_sha256": {
+    "train": "69684078fabd3b6e2220723080e19512cb2df1c3ad46750479d72b8bb4c0f8e9",
+    "validation": "887429106d2f1615d397ce5f293c3ef785e745b9784e5c0a6a76ecb2a0f3c726",
+    "test": "e6f0fc07529603700970c1bacd53dbf4c085e08f9ebb71f5d05a9962a41b6be5",
+    "chatml_train": "f9eb1a069733b4eef30bddcd8d630f6b5e96d4a14803e0de85d823fdc58f2a4e",
+    "all": "1bedf785af3de89413d232a6aecbf51c50ab2f61aa3b7b4d5631038f8e66ef39"
+  }
+}

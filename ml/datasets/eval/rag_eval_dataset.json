@@ -1,0 +1,42 @@
+[
+  {
+    "id": "rag_001",
+    "query": "What experience does the candidate have with high-throughput API architecture and latency reduction?",
+    "ground_truth": "Engineered asynchronous FastAPI microservices with Redis caching, reducing p99 latency from 320ms to 45ms under 10k RPS load.",
+    "target_skills": ["FastAPI", "Redis", "latency", "microservices"],
+    "expected_context_ids": ["res_v1_exp_0_0"],
+    "sample_answer": "The candidate has proven experience architecting high-throughput FastAPI microservices and integrating Redis distributed caching, which cut p99 latency by 85% to 45ms under 10,000 requests per second."
+  },
+  {
+    "id": "rag_002",
+    "query": "Which database technologies, migrations, and vector stores has the candidate utilized in production?",
+    "ground_truth": "Managed PostgreSQL with asyncpg, executed Alembic schema migrations, and deployed ChromaDB for semantic search and retrieval.",
+    "target_skills": ["PostgreSQL", "asyncpg", "Alembic", "ChromaDB"],
+    "expected_context_ids": ["res_v1_exp_0_1", "res_v1_skills"],
+    "sample_answer": "In production, the candidate utilized PostgreSQL with asyncpg connection pooling, Alembic for database migrations, and ChromaDB for semantic document retrieval."
+  },
+  {
+    "id": "rag_003",
+    "query": "What multi-agent orchestration frameworks and LLM monitoring tools are listed on the resume?",
+    "ground_truth": "Designed agentic workflows using LangGraph supervisor-worker patterns and integrated Langfuse for tracing latency, token usage, and errors.",
+    "target_skills": ["LangGraph", "Langfuse", "multi-agent", "supervisor"],
+    "expected_context_ids": ["res_v1_proj_0_0"],
+    "sample_answer": "The candidate designed multi-agent systems using LangGraph state graphs with supervisor dispatching, and implemented Langfuse for comprehensive span tracing, latency monitoring, and token tracking."
+  },
+  {
+    "id": "rag_004",
+    "query": "What experience does the candidate have with open-source LLM fine-tuning and quantization?",
+    "ground_truth": "Fine-tuned Qwen2.5-1.5B-Instruct using PyTorch, Hugging Face Transformers, PEFT, and QLoRA 4-bit quantization on specialized domain instructions.",
+    "target_skills": ["Qwen", "QLoRA", "PEFT", "PyTorch"],
+    "expected_context_ids": ["res_v1_proj_1_0"],
+    "sample_answer": "The candidate fine-tuned Qwen2.5-1.5B models using PyTorch, Hugging Face PEFT library, and 4-bit QLoRA quantization for career domain tasks."
+  },
+  {
+    "id": "rag_005",
+    "query": "How has the candidate implemented responsible AI, toxicity filtering, and bias mitigation?",
+    "ground_truth": "Implemented automated heuristic guardrails for prompt injection defense, demographic bias detection, and factual groundedness audits.",
+    "target_skills": ["guardrails", "bias", "groundedness", "prompt injection"],
+    "expected_context_ids": ["res_v1_proj_0_1"],
+    "sample_answer": "The candidate built modular Responsible AI guardrails detecting prompt injection overrides, mitigating demographic bias, and auditing generated outputs for factual groundedness."
+  }
+]

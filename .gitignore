@@ -39,3 +39,20 @@ backend/fastapi_app/data/parsed/
 
 # Keep library.json if your app needs it
 !backend/fastapi_app/data/library.json
+
+# Qwen model checkpoints
+*.safetensors
+**/checkpoint-*/
+**/optimizer.pt
+**/scheduler.pt
+**/rng_state.pth
+**/training_args.bin
+
+# Local database
+backend/django_app/db.sqlite3
+# Qwen tokenizer and adapter metadata (keep model artifacts outside Git)
+**/qwen_career_lora/README.md
+**/qwen_career_lora/adapter_config.json
+**/qwen_career_lora/tokenizer.json
+**/qwen_career_lora/tokenizer_config.json
+**/qwen_career_lora/chat_template.jinja

@@ -1,24 +1,42 @@
-# Qwen Fine-Tuning Hyperparameters for CareerOS
+# Qwen2.5-1.5B-Instruct Fine-Tuning Hyperparameters for CareerOS
 
 model:
-  base_model: "Qwen/Qwen2.5-7B-Instruct"
+  base_model: "Qwen/Qwen2.5-1.5B-Instruct"
+  model_revision: "main"
   output_dir: "./checkpoints/qwen_career_lora"
+  max_seq_length: 512
 
 lora:
   r: 16
   lora_alpha: 32
   lora_dropout: 0.05
+  bias: "none"
+  task_type: "CAUSAL_LM"
   target_modules:
     - "q_proj"
     - "k_proj"
     - "v_proj"
     - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
 
 training:
-  per_device_train_batch_size: 4
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 2
   gradient_accumulation_steps: 4
   learning_rate: 0.0002
   num_train_epochs: 3
-  logging_steps: 10
+  warmup_ratio: 0.05
+  lr_scheduler_type: "cosine"
+  logging_steps: 5
   save_strategy: "epoch"
+  eval_strategy: "epoch"
+  save_total_limit: 2
   fp16: true
+  bf16: false
+  gradient_checkpointing: true
+  optim: "paged_adamw_8bit"
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  seed: 42

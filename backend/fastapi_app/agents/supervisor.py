@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 from config import settings
 from agents.state import AgentState
 from services.llm_service import LLMService
+from core.logging_decorator import agent_logger
 
 
 class SupervisorDecision(BaseModel):
@@ -20,6 +21,7 @@ class SupervisorDecision(BaseModel):
     )
 
 
+@agent_logger("supervisor")
 def run_supervisor(state: AgentState) -> dict:
     """
     Supervisor node.

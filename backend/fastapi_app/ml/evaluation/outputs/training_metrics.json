@@ -1,0 +1,59 @@
+{
+  "status": "dry_run",
+  "trained": false,
+  "message": "Fine-tuning configuration and dataset validated successfully. No GPU training was executed.",
+  "timestamp": "2026-11-10T06:54:40.745600+00:00",
+  "target_model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "dataset": {
+    "path": "C:\\Users\\91988\\OneDrive\\Desktop\\AICareerCopilot\\backend\\fastapi_app\\ml\\datasets\\train\\career_instructions_train.jsonl",
+    "sha256": "69684078fabd3b6e2220723080e19512cb2df1c3ad46750479d72b8bb4c0f8e9",
+    "sample_count": 23
+  },
+  "output_directory": "C:\\Users\\91988\\OneDrive\\Desktop\\AICareerCopilot\\backend\\fastapi_app\\ml\\fine_tuning\\./checkpoints/qwen_career_lora",
+  "hardware_detected": {
+    "os": "Windows-10-10.0.26300-SP0",
+    "python_version": "3.10.4",
+    "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+    "cuda_available": false,
+    "device_count": 0,
+    "gpu_name": null,
+    "gpu_vram_gb": 0.0,
+    "qlora_supported": false
+  },
+  "lora_parameters": {
+    "r": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "bias": "none",
+    "task_type": "CAUSAL_LM",
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ]
+  },
+  "training_parameters": {
+    "per_device_train_batch_size": 2,
+    "per_device_eval_batch_size": 2,
+    "gradient_accumulation_steps": 4,
+    "learning_rate": 0.0002,
+    "num_train_epochs": 3,
+    "warmup_ratio": 0.05,
+    "lr_scheduler_type": "cosine",
+    "logging_steps": 5,
+    "save_strategy": "epoch",
+    "eval_strategy": "epoch",
+    "save_total_limit": 2,
+    "fp16": true,
+    "bf16": false,
+    "gradient_checkpointing": true,
+    "optim": "paged_adamw_8bit",
+    "weight_decay": 0.01,
+    "max_grad_norm": 1.0,
+    "seed": 42
+  }
+}
